@@ -3,6 +3,7 @@
 import logger from './logUtil';
 import XHRQueue from './xhrModule';
 import BeaconQueue from './beaconQueue';
+import CustomQueue from './customQueue';
 import { getCurrentTimeFormatted, removeTrailingSlashes, replacer } from './utils';
 
 const MESSAGE_LENGTH = 32 * 1000; // ~32 Kb
@@ -25,6 +26,13 @@ class EventRepository {
   initialize(writeKey, url, options) {
     let queueOptions = {};
     let targetUrl = removeTrailingSlashes(url);
+
+    if (options && options.customTransport) {
+      this.queue = new CustomQueue();
+      this.queue.init(options.customTransport, queueOptions);
+      return;
+    }
+
     if (options && options.useBeacon && navigator.sendBeacon) {
       if (
         options &&
